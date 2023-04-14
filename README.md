@@ -1,4 +1,4 @@
-# CS 32 Project: Lofi Maker
+# CS 32 Project: ANAGRAMS!
 
 (no project partners)
 
