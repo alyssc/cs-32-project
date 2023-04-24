@@ -5,6 +5,8 @@ to play Anagrams
 import random
 import numpy as np
 
+#### Load relevant data ####
+
 # Load Scrabble dictionary
 scrabble_words = []
 
@@ -25,6 +27,8 @@ bananagrams_dist = {2: ["J", "K", "Q", "X", "Z"],
 	13: ["A"],
 	18: ["E"]}
 
+
+#### Helper functions for Board class ####
 def letters_from_dist(dist):
 	"""
 	Given a distribution of letters in a dictionary format, eg. 
@@ -69,7 +73,14 @@ def is_word(word):
 	Checks the Scrabble dictionary to see whether a word exists.
 	Restrict words to be at least 4 letters. 
 	"""
-	return (word in scrabble_words) & (len(word) >= 4)
+	if word not in scrabble_words:
+		print("That's not in our dictionary!")
+		return False
+	if len(word) < 4:
+		print("That's too short! Words must be 4 or more letters.")
+		return False
+
+	return True
 
 
 
@@ -77,8 +88,8 @@ class Board():
 
 	def __init__(self, players, letters_dist = bananagrams_dist):
 		"""
-		Initialize board given player names 
-		and distribution of letters (default is the Bananagrams distribution). 
+		Initialize Anagrams board given player names 
+		and a distribution of letters (default is the Bananagrams distribution). 
 		"""
 		self.players = players # list of player names, from user input
 		self.whos_turn = 0 # index of current player. It's currently player 0's turn. 
@@ -106,15 +117,48 @@ class Board():
 				s+= f"\n   {word}"
 		return s
 
+	def flip_letter(self):
+		"""
+		Turns over a letter if there are letters left. If not, game ends. 
+		"""
+		try:
+			self.letters_up.append(self.letters_down.pop())
+		except:
+			print("No more letters!")
+			self.end_game()
+
 	def take_turn(self):
 		"""
 		Current player takes their turn by flipping over a letter. 
 		Then update who the current player is.
 		"""
-		self.letters_up.append(self.letters_down.pop())
+		self.flip_letter()
 
 		# now it's the next player's turn
 		self.whos_turn = (self.whos_turn + 1) % len(self.players)
+
+	def end_game(self):
+		"""
+		Ends game. Calculates scores and prints out winner. 
+		Score for each player is calculated by adding the (length-3) of each word
+		in order to incentivize longer words. 
+		"""
+		scores = []
+
+		for player in self.players:
+			score = 0
+			for word in self.words[player]:
+				score += len(word)-3
+			
+			scores.append(score)
+
+		# Allows for multiple winners
+		winners = np.argwhere(scores == np.max(scores)).flatten()
+
+		for w in winners:
+			print(f"{self.players[w]} won! ")
+
+		print("Game ended.")
 
 	def word_from_letters(self, new_player, new_word):
 		"""
@@ -134,8 +178,6 @@ class Board():
 		check_2 = np.all(letter_freqs(self.letters_up) - letter_freqs(new_word) >= zeros)
 
 		if not (check_0 & check_2): 
-			print(check_0)
-			print(check_2)
 			print("This is not a valid new word!")
 			return
 
@@ -145,9 +187,10 @@ class Board():
 		self.words[new_player].append(new_word)
 
 		# Flip over two new letters if a new word is successfully created
-		# TO-DO: need to figure out how to end when letters run out
-		self.letters_up.append(self.letters_down.pop())
-		self.letters_up.append(self.letters_down.pop())
+		self.flip_letter()
+		self.flip_letter()
+
+		print(f"{new_player} has created the word {new_word}!")
 
 
 	def word_from_word(self, new_player, old_word, new_word): 
@@ -203,9 +246,11 @@ class Board():
 		self.words[new_player].append(new_word)
 
 		# Flip over two new letters if a new word is successfully created
-		# TO-DO: need to figure out how to end when letters run out
-		self.letters_up.append(self.letters_down.pop())
-		self.letters_up.append(self.letters_down.pop())
+		self.flip_letter()
+		self.flip_letter()
+
+		print(f"{new_player} has created the word {new_word} out of {old_word}!")
+
 
 
 
