@@ -1,6 +1,5 @@
 '''
-Non-networked version of Anagrams.
-This version allows for multiple players, but only on one shell. 
+Networked version of Anagrams.
 '''
 
 import sys
