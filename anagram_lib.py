@@ -76,8 +76,8 @@ def is_word(word):
 	if word not in scrabble_words:
 		print("That's not in our dictionary!")
 		return False
-	if len(word) < 4:
-		print("That's too short! Words must be 4 or more letters.")
+	if len(word) < 3:
+		print("That's too short! Words must be 3 or more letters.")
 		return False
 
 	return True
@@ -100,7 +100,7 @@ class Board():
 		self.words = words # dictionary with players mapping to words owned by that player
 		self.letters_down = letters_from_dist(letters_dist) # list of letters not yet visible
 		self.letters_up = [] # list of visible, upturned letters
-		self.end_game = False # indicator to end the game when no more letters_down AND no new anagrams created
+		self.end_game = False # indicator to begin endgame when letters run out
 
 	def __str__(self):
 		s = ""
@@ -154,7 +154,7 @@ class Board():
 		for player in self.players:
 			score = 0
 			for word in self.words[player]:
-				score += len(word)-3
+				score += len(word)-2
 			
 			scores.append(score)
 
