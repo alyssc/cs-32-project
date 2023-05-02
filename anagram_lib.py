@@ -5,7 +5,7 @@ to play Anagrams
 import random
 import numpy as np
 
-#### Load relevant data ####
+#### Load relevant data and preferences ####
 
 # Load Scrabble dictionary
 scrabble_words = []
@@ -27,6 +27,8 @@ bananagrams_dist = {2: ["J", "K", "Q", "X", "Z"],
 	13: ["A"],
 	18: ["E"]}
 
+# Minimum length for a word is 4 by default but can be changed here
+min_word_len = 4
 
 #### Helper functions for Board class ####
 def letters_from_dist(dist):
@@ -71,13 +73,13 @@ def freqs_to_letters(freqs):
 def is_word(word):
 	""" 
 	Checks the Scrabble dictionary to see whether a word exists.
-	Restrict words to be at least 4 letters. 
+	Restrict words to be at least 4 letters by default; change min_word_len above if desired. 
 	"""
 	if word not in scrabble_words:
 		print("That's not in our dictionary!")
 		return False
-	if len(word) < 4:
-		print("That's too short! Words must be 4 or more letters.")
+	if len(word) < min_word_len:
+		print(f"That's too short! Words must be {min_word_len} or more letters.")
 		return False
 
 	return True
@@ -133,7 +135,9 @@ class Board():
 			try:
 				self.letters_up.append(self.letters_down.pop())
 			except:
-				self.end_game = True # this doesn't immediately end the game but rather triggers a game ending the next turn
+				self.end_game = True 
+				# NOTE! this doesn't immediately end the game but rather triggers a game ending THE NEXT TURN
+				# see anagrams.py for when check happens
 
 	def take_turn(self):
 		"""
@@ -148,7 +152,7 @@ class Board():
 	def score(self):
 		"""
 		Calculates scores and prints out winner. 
-		Score for each player is calculated by adding the (length-3) of each word
+		Score for each player is calculated by adding the (length-min_word_len+1) of each word
 		in order to incentivize longer words. 
 		"""
 		scores = []
@@ -156,7 +160,7 @@ class Board():
 		for player in self.players:
 			score = 0
 			for word in self.words[player]:
-				score += len(word)-2
+				score += len(word)-min_word_len+1 # default scoring; can change if desired
 			
 			scores.append(score)
 
