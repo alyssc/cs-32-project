@@ -1,6 +1,5 @@
 '''
-Non-networked version of Anagrams.
-This version allows for multiple players, but only on one shell. 
+This version allows for multiple players on one shell. 
 '''
 
 import sys
@@ -14,10 +13,13 @@ def main():
 \n1. Using face-up letter tiles from the pool,
 \n2. "Stealing" a word from another player by combining it with one or more tiles from the pool to make a new word (e.g., the word TRACK may be formed with a K from the pool and a player's CART),
 \n3. OR combining one of their own words with additional tiles from the pool in the same way. 
-\nWhen a player sees a word, they call it immediately (irrespective of who flipped the last tile) and then enter in their ANAGRAM. Two tiles are flipped when a word is made or taken. The game then continues with further tiles being flipped.
-\nAll words must be at least three letters long. 
+\nWhen a player sees a word, they call it out loud immediately (irrespective of who flipped the last tile) and then enter in their ANAGRAM. Two tiles are flipped when a word is made or taken. The game then continues with further tiles being flipped. 
+\nNOTE: Newly flipped tiles will always appear at the end of the visible letters; all other letters will be alphabetized. 
+\nIf two players call out words simultaneously, it's up to you to decide who called it first! 
+\nAll words must be at least four letters long. 
 \nThe game ends when all tiles are face up and no further words can be formed. Scores for each player is calculated with their words: a 3-letter word is worth 1 point, a 4-letter word 2 points, and so on. 
 \nEnter an equal sign ("=") if you'd like to end the game early. Ties are allowed!
+\nOPTIONAL HOUSE RULE: Only make anagrams which change the meaning of the word! Eg. do not add S to START in order to make STARTS. It's up to you to decide what counts! 
 """
     print(instructions)
 
@@ -37,8 +39,13 @@ def main():
         board.take_turn()
         print(board)
 
+        whos_turn = board.players[board.whos_turn]
+
         while True: 
-            new_word = input("Input an ANAGRAM if you can find one! Otherwise, press enter: ").upper()
+            if board.end_game == True:
+                print("No more letters! This is your last chance to create ANAGRAMS! (WARNING: pressing enter without an anagram will end the game)")
+
+            new_word = input(f"Input an ANAGRAM if you can find one! Otherwise, {whos_turn} can press enter: ").upper()
             if new_word == "":
                 break
 

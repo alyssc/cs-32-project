@@ -76,8 +76,8 @@ def is_word(word):
 	if word not in scrabble_words:
 		print("That's not in our dictionary!")
 		return False
-	if len(word) < 3:
-		print("That's too short! Words must be 3 or more letters.")
+	if len(word) < 4:
+		print("That's too short! Words must be 4 or more letters.")
 		return False
 
 	return True
@@ -101,6 +101,9 @@ class Board():
 		self.letters_down = letters_from_dist(letters_dist) # list of letters not yet visible
 		self.letters_up = [] # list of visible, upturned letters
 		self.end_game = False # indicator to begin endgame when letters run out
+
+		# Starts game with 4 tiles flipped upwards! Can omit this
+		self.flip_letter(3) # 3 flips due to how anagrams.py is ordered
 
 	def __str__(self):
 		s = ""
@@ -130,7 +133,6 @@ class Board():
 			try:
 				self.letters_up.append(self.letters_down.pop())
 			except:
-				print("No more letters! Last chance to create ANAGRAMS!")
 				self.end_game = True # this doesn't immediately end the game but rather triggers a game ending the next turn
 
 	def take_turn(self):
@@ -161,9 +163,15 @@ class Board():
 		# Allows for multiple winners
 		winners = np.argwhere(scores == np.max(scores)).flatten()
 
-		for w in winners:
-			print(f"{self.players[w]} won! ")
+		print("\n")
 
+		for w in winners:
+			print(f"{self.players[w]} WON! ")
+
+		print("\n**ALL SCORES**")
+
+		for i in range(len(self.players)):
+			print(f"{self.players[i]}: {scores[i]}")
 
 		print("Game ended.")
 
@@ -184,6 +192,10 @@ class Board():
 		i.e. new word is longer than old word,
 		includes the entirety of the old word, 
 		and only adds available upturned letters to the old word. 
+
+		A new word can be created multiple ways. new_word() prioritizes 1) making words
+		from the letter tiles, 2) stealing words, and 3) making words from the player's own words. 
+		Note that there is no disambiguation among different steals or word makings. 
 		"""
 
 		# check that new word is in Scrabble dictionary
@@ -233,13 +245,17 @@ class Board():
 
 				# found a valid old word! 
 				if check_1 & check_2 & check_3: 
-					old_player = player
-					old_word = word
-					to_break = True
 
-				if to_break: break
+					# this if statement handles case where multiple instances of old_word
+					# to make sure that other player's words are stolen before own word
+					if old_player:
+						if old_player == new_player:
+							old_player = player
+							old_word = word
+					else:
+						old_player = player
+						old_word = word
 
-			if to_break: break
 
 		if not old_player:
 			print("Not a valid steal!")
